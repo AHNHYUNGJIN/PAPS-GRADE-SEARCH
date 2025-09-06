@@ -273,55 +273,47 @@
                 let foundGrade = "등급을 찾을 수 없습니다.";
                 let eventRanges = papsData[grade][event][gender];
 
-                // BMI는 별도 로직으로 처리
-                if (isBMI) {
-                    if (eventRanges.length > 0) {
-                        const ranges = eventRanges.map(r => r.범위);
-                        
-                        if (record >= 30.0) {
-                            foundGrade = eventRanges.find(r => r.등급.includes("고도비만")).등급;
-                        } else if (record >= 25.0) {
-                             foundGrade = eventRanges.find(r => r.등급.includes("경도비만")).등급;
-                        } else if (record >= 22.1 && record <= 24.9 && gender === '여학생') {
-                             foundGrade = eventRanges.find(r => r.등급.includes("과체중")).등급;
-                        } else if (record >= 23.3 && record <= 24.9 && gender === '남학생') {
-                            foundGrade = eventRanges.find(r => r.등급.includes("과체중")).등급;
-                        } else if (record >= 15.2 && record <= 22.1 && gender === '여학생') {
-                            foundGrade = eventRanges.find(r => r.등급.includes("정상")).등급;
-                        } else if (record >= 15.4 && record <= 23.2 && gender === '남학생') {
-                            foundGrade = eventRanges.find(r => r.등급.includes("정상")).등급;
-                        } else {
-                            foundGrade = eventRanges.find(r => r.등급.includes("마름")).등급;
+                if (eventRanges.length > 0) {
+                    const firstRange = eventRanges[0];
+                    const lastRange = eventRanges[eventRanges.length - 1];
+
+                    // 가장 높은 등급의 범위를 초과하는 경우
+                    if (!isLowerBetter) { // 점수가 높을수록 좋은 종목
+                        const maxRangeStr = firstRange.범위.split('~').map(s => s.trim());
+                        let max = parseFloat(maxRangeStr[maxRangeStr.length - 1]);
+                        if (record > max) {
+                            foundGrade = firstRange.등급;
+                        }
+                    } else { // 점수가 낮을수록 좋은 종목
+                        const minRangeStr = firstRange.범위.split('~').map(s => s.trim());
+                        let min = parseFloat(minRangeStr[0]);
+                        if (record < min) {
+                            foundGrade = firstRange.등급;
                         }
                     }
 
-                } else {
-                    // 일반 종목 로직
-                    if (eventRanges.length > 0) {
+                    // 가장 낮은 등급의 범위 미만인 경우
+                    if (!isLowerBetter) { // 점수가 높을수록 좋은 종목
+                        const minRangeStr = lastRange.범위.split('~').map(s => s.trim());
+                        let min = parseFloat(minRangeStr[0]);
+                        if (record < min) {
+                            foundGrade = lastRange.등급;
+                        }
+                    } else { // 점수가 낮을수록 좋은 종목
+                        const maxRangeStr = lastRange.범위.split('~').map(s => s.trim());
+                        let max = parseFloat(maxRangeStr[maxRangeStr.length - 1]);
+                        if (record > max) {
+                            foundGrade = lastRange.등급;
+                        }
+                    }
+
+                    // 기존 범위 내 판정 로직
+                    if (foundGrade === "등급을 찾을 수 없습니다.") {
                         for (const range of eventRanges) {
-                            const rangeStr = range.범위.replace('~', '~').replace('이하', '~').replace('이상', '~');
+                            let rangeStr = range.범위.replace('~', '~');
                             const [minStr, maxStr] = rangeStr.split('~').map(s => s.trim());
                             let min = parseFloat(minStr);
                             let max = parseFloat(maxStr);
-
-                            if (isNaN(min)) {
-                                if (rangeStr.includes("이하")) {
-                                    if (record <= max) {
-                                        foundGrade = range.등급;
-                                        break;
-                                    }
-                                } else if (rangeStr.includes("이상")) {
-                                    if (record >= min) {
-                                        foundGrade = range.등급;
-                                        break;
-                                    }
-                                } else if (rangeStr.includes("~")) { // 단일 값 처리
-                                    if (record === min) {
-                                        foundGrade = range.등급;
-                                        break;
-                                    }
-                                }
-                            }
 
                             if (!isLowerBetter) { // 점수가 높을수록 좋은 종목 (거리, 횟수 등)
                                 if (record >= min && record <= max) {
