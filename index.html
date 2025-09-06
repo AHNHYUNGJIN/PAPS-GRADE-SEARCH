@@ -3,498 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 체력 탐험: PAPS 대화형 가이드</title>
-    <!-- Chosen Palette: Vibrant Fitness -->
-    <!-- Application Structure Plan: The application is structured as a narrative journey following the 5 stages of the provided lesson plan (Engage, Explore, Explain, Elaborate, Evaluate). This linear, story-like flow is highly intuitive for students, guiding them from initial curiosity about PAPS to understanding its components, learning the scientific principles of fitness, and finally, being empowered to create their own action plan. This structure was chosen over a dashboard to mirror the pedagogical flow of the source material, making it an effective learning tool rather than just a data display. Key interactions include hover effects on principle cards and an interactive radar chart to explore fitness components. -->
-    <!-- Visualization & Content Choices: 
-        - PAPS Components -> Goal: Inform/Compare -> Viz: Radar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: A radar chart effectively visualizes the multi-faceted nature of fitness, showing how five key components create a complete picture of health. It's more engaging than a simple list or pie chart. Method: Chart.js on Canvas.
-        - 5-Stage Learning Process -> Goal: Organize -> Viz: HTML/CSS Flow Diagram -> Interaction: None (visual guide) -> Justification: Clearly outlines the learning journey without using prohibited SVG/Mermaid. It uses flexbox and styled divs to create a responsive, clear process flow. Method: HTML/CSS with Tailwind.
-        - 6 Fitness Principles -> Goal: Inform/Organize -> Viz: Interactive Cards -> Interaction: Hover scale effect -> Justification: Chunks complex information into digestible cards. The subtle hover interaction encourages user engagement and makes the principles more memorable. Method: HTML/CSS with Tailwind.
-        - 4-Step Action Plan -> Goal: Organize -> Viz: Simple Text Flow Diagram -> Interaction: None -> Justification: A clear, final call-to-action that summarizes the practical application of the lesson in a simple, memorable format. Method: HTML/CSS.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>PAPS 등급 계산기</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #F0F4F8;
-            color: #334155;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 450px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 400px;
-            }
-        }
-        .nav-button {
-            transition: all 0.3s ease;
-        }
-        .nav-button.active {
-            background-color: #0891B2;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        section {
-            scroll-margin-top: 80px;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0891B2;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
         }
     </style>
 </head>
-<body class="antialiased">
-
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm p-2">
-        <div class="container mx-auto flex justify-center items-center flex-wrap gap-1 md:space-x-2">
-            <button onclick="scrollToSection('intro')" class="nav-button active text-xs md:text-sm font-bold py-2 px-3 rounded-full bg-gray-200 text-gray-700" data-section="intro">🚀 시작하기</button>
-            <button onclick="scrollToSection('fitness-concept')" class="nav-button text-xs md:text-sm font-bold py-2 px-3 rounded-full bg-gray-200 text-gray-700" data-section="fitness-concept">💪 체력의 개념</button>
-            <button onclick="scrollToSection('journey')" class="nav-button text-xs md:text-sm font-bold py-2 px-3 rounded-full bg-gray-200 text-gray-700" data-section="journey">🗺️ 탐험 여정</button>
-            <button onclick="scrollToSection('principles')" class="nav-button text-xs md:text-sm font-bold py-2 px-3 rounded-full bg-gray-200 text-gray-700" data-section="principles">🔑 황금 열쇠</button>
-            <button onclick="scrollToSection('data-hub')" class="nav-button text-xs md:text-sm font-bold py-2 px-3 rounded-full bg-gray-200 text-gray-700" data-section="data-hub">📊 데이터 허브</button>
-            <button onclick="scrollToSection('mission')" class="nav-button text-xs md:text-sm font-bold py-2 px-3 rounded-full bg-gray-200 text-gray-700" data-section="mission">💪 나의 미션</button>
-        </div>
-    </nav>
-
-    <div class="container mx-auto p-4 md:p-8">
-
-        <header id="intro" class="text-center py-16">
-            <h1 class="text-4xl md:text-6xl font-black text-slate-800 mb-4">내 몸 사용 설명서, PAPS</h1>
-            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">PAPS는 점수 경쟁이 아닌, 나의 건강한 성장을 위한 과학적인 나침반입니다. '체력'이라는 보물을 어떻게 발견하고 키워나갈 수 있는지 함께 탐험해 봅시다.</p>
-        </header>
-
-        <main>
-            <section id="fitness-concept" class="mb-20">
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
-                    <h2 class="text-3xl font-bold text-slate-800 text-center mb-4">💪 체력이란 무엇일까요?</h2>
-                    <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">
-                        체력은 단순히 '힘이 센 것' 이상을 의미합니다. 일상생활을 활기차게 보내고, 예기치 못한 신체 활동에 대응하는 능력입니다. 체력은 크게 **건강 체력**과 **운동 체력**으로 나눌 수 있습니다.
-                    </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-cyan-50 border-2 border-cyan-200 rounded-xl p-6">
-                            <h3 class="text-2xl font-bold text-cyan-800 mb-4 text-center">❤️ 건강 체력</h3>
-                            <p class="text-center text-slate-700 mb-6">일상생활을 건강하고 활기차게 살아가는 데 필수적인 능력입니다. PAPS는 바로 이 건강 체력을 중심으로 측정합니다.</p>
-                            <ul class="space-y-3">
-                                <li class="flex items-start"><span class="mr-3 text-lg">🏃</span><div><strong class="text-slate-800">심폐지구력:</strong> 심장과 폐가 오랫동안 지치지 않고 활동하는 능력</div></li>
-                                <li class="flex items-start"><span class="mr-3 text-lg">💪</span><div><strong class="text-slate-800">근력/근지구력:</strong> 근육이 강한 힘을 내거나, 반복적으로 힘을 내는 능력</div></li>
-                                <li class="flex items-start"><span class="mr-3 text-lg">🤸</span><div><strong class="text-slate-800">유연성:</strong> 관절과 근육이 부드럽게 움직이는 능력</div></li>
-                                <li class="flex items-start"><span class="mr-3 text-lg">🧍</span><div><strong class="text-slate-800">신체조성:</strong> 몸을 구성하는 체지방, 근육 등의 건강한 비율</div></li>
-                            </ul>
-                        </div>
-                        <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-6">
-                            <h3 class="text-2xl font-bold text-amber-800 mb-4 text-center">🏆 운동 체력</h3>
-                            <p class="text-center text-slate-700 mb-6">스포츠 활동이나 운동 기술을 더 뛰어나게 수행하는 데 필요한 능력입니다. 건강 체력과 함께 발달하면 좋습니다.</p>
-                            <ul class="space-y-3">
-                                <li class="flex items-start"><span class="mr-3 text-lg">⚡️</span><div><strong class="text-slate-800">순발력:</strong> 순간적으로 폭발적인 힘을 내는 능력 (PAPS 측정 항목)</div></li>
-                                <li class="flex items-start"><span class="mr-3 text-lg">💨</span><div><strong class="text-slate-800">민첩성:</strong> 몸의 방향을 빠르고 정확하게 바꾸는 능력</div></li>
-                                <li class="flex items-start"><span class="mr-3 text-lg">⚖️</span><div><strong class="text-slate-800">평형성:</strong> 몸의 균형을 안정적으로 유지하는 능력</div></li>
-                                <li class="flex items-start"><span class="mr-3 text-lg">🎯</span><div><strong class="text-slate-800">협응성:</strong> 몸의 여러 부분을 조화롭게 사용하는 능력</div></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="journey" class="mb-20">
-                 <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
-                    <h2 class="text-3xl font-bold text-slate-800 text-center mb-8">나의 체력, 어떻게 탐험할까?</h2>
-                    <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">
-                        우리의 탐험은 7단계로 이루어져 있습니다. 각 단계를 통해 PAPS를 깊이 이해하고, 나만의 건강 계획을 세우는 자기 주도적인 전문가가 될 수 있습니다. 아래 버튼을 클릭하여 각 단계의 활동을 자세히 알아보세요.
-                    </p>
-                    <div class="flex justify-center items-center gap-2 mb-12 flex-wrap">
-                        <button class="tab-button bg-cyan-600 text-white py-2 px-3 rounded-lg shadow text-sm" onclick="changeTab('connecting')">1. 관계맺기</button>
-                        <button class="tab-button bg-gray-300 text-gray-800 py-2 px-3 rounded-lg text-sm" onclick="changeTab('focusing')">2. 집중하기</button>
-                        <button class="tab-button bg-gray-300 text-gray-800 py-2 px-3 rounded-lg text-sm" onclick="changeTab('investigating')">3. 조사하기</button>
-                        <button class="tab-button bg-gray-300 text-gray-800 py-2 px-3 rounded-lg text-sm" onclick="changeTab('organizing')">4. 조직/정리</button>
-                        <button class="tab-button bg-gray-300 text-gray-800 py-2 px-3 rounded-lg text-sm" onclick="changeTab('generalizing')">5. 일반화</button>
-                        <button class="tab-button bg-gray-300 text-gray-800 py-2 px-3 rounded-lg text-sm" onclick="changeTab('transferring')">6. 전이하기</button>
-                        <button class="tab-button bg-gray-300 text-gray-800 py-2 px-3 rounded-lg text-sm" onclick="changeTab('reflecting')">7. 성찰하기</button>
-                    </div>
-                    <div id="tab-content" class="bg-slate-50 rounded-lg p-6 min-h-[150px] transition-opacity duration-500">
-                        <div id="connecting-content" class="tab-pane">
-                            <h3 class="font-bold text-xl text-cyan-700">"체력과 친해지기"</h3>
-                            <p class="mt-2 text-slate-700">"체력이 좋다"는 말의 의미를 생각해보고, 일상생활 속 나의 경험과 체력을 연결하며 오늘 배울 내용에 대한 마음의 문을 엽니다.</p>
-                        </div>
-                        <div id="focusing-content" class="tab-pane hidden">
-                            <h3 class="font-bold text-xl text-cyan-700">"탐구 질문 만들기"</h3>
-                            <p class="mt-2 text-slate-700">PAPS가 무엇인지 알아보고, '나의 체력 수준은 어떨까?', '어떻게 하면 체력을 키울 수 있을까?'와 같이 탐구하고 싶은 핵심 질문에 집중합니다.</p>
-                        </div>
-                        <div id="investigating-content" class="tab-pane hidden">
-                             <h3 class="font-bold text-xl text-cyan-700">"내 몸의 데이터 수집"</h3>
-                            <p class="mt-2 text-slate-700">PAPS의 각 항목을 직접 측정하며 나의 체력에 대한 구체적인 데이터를 수집합니다. 궁금증을 해결하기 위한 증거를 모으는 과정입니다.</p>
-                        </div>
-                         <div id="organizing-content" class="tab-pane hidden">
-                            <h3 class="font-bold text-xl text-cyan-700">"데이터 분석 및 의미 찾기"</h3>
-                            <p class="mt-2 text-slate-700">수집한 측정 결과를 기준표와 비교하여 나의 강점과 약점을 파악합니다. 흩어져 있던 정보를 의미 있는 지식으로 정리하는 단계입니다.</p>
-                        </div>
-                         <div id="generalizing-content" class="tab-pane hidden">
-                            <h3 class="font-bold text-xl text-cyan-700">"체력 증진의 원리 발견"</h3>
-                            <p class="mt-2 text-slate-700">나의 결과와 '체력 증진의 6가지 황금 열쇠'를 연결하며, 체력이 좋아지는 보편적인 과학 원리를 이해하고 나만의 결론을 내립니다.</p>
-                        </div>
-                        <div id="transferring-content" class="tab-pane hidden">
-                            <h3 class="font-bold text-xl text-cyan-700">"나만의 운동 처방전 설계"</h3>
-                            <p class="mt-2 text-slate-700">발견한 원리를 실제 상황에 적용하여, 부족한 체력을 키우기 위한 개인 맞춤형 운동 계획을 직접 설계하고 문제를 해결합니다.</p>
-                        </div>
-                        <div id="reflecting-content" class="tab-pane hidden">
-                            <h3 class="font-bold text-xl text-cyan-700">"배움과 성장 돌아보기"</h3>
-                            <p class="mt-2 text-slate-700">탐구 과정 전체를 돌아보며 무엇을 배웠고 어떻게 성장했는지 생각합니다. 이를 통해 앞으로 꾸준히 건강을 관리하는 태도를 다집니다.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">PAPS 등급 계산기</h1>
+        <p class="text-center text-gray-600 mb-8">학년, 성별, 종목, 기록을 입력하여 등급을 확인하세요.</p>
+        
+        <form id="papsForm" class="space-y-6">
+            <div>
+                <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">학년</label>
+                <select id="grade" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border-2">
+                    <option value="초4">초등학교 4학년</option>
+                    <option value="초5">초등학교 5학년</option>
+                    <option value="초6">초등학교 6학년</option>
+                    <option value="중1">중학교 1학년</option>
+                    <option value="중2">중학교 2학년</option>
+                    <option value="중3">중학교 3학년</option>
+                    <option value="고1">고등학교 1학년</option>
+                    <option value="고2">고등학교 2학년</option>
+                    <option value="고3">고등학교 3학년</option>
+                </select>
+            </div>
             
-            <section id="principles" class="mb-20">
-                <h2 class="text-3xl font-bold text-slate-800 text-center mb-4">체력 증진의 6가지 황금 열쇠 🔑</h2>
-                <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">똑똑하게 운동해야 효과도 두 배! 아래 6가지 과학적 원리를 이해하고 나만의 운동 계획에 적용해 보세요.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="text-5xl mb-4">🌐</div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">전면성의 원리</h3>
-                        <p class="text-slate-600">몸 전체를 골고루 발달시켜 균형 잡힌 체력을 만듭니다.</p>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="text-5xl mb-4">👤</div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">개별성의 원리</h3>
-                        <p class="text-slate-600">나의 체력 수준과 목표에 맞는 맞춤형 운동을 계획합니다.</p>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="text-5xl mb-4">🏋️</div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">과부하의 원리</h3>
-                        <p class="text-slate-600">평소보다 조금 더 힘들게 운동하여 근육이 성장할 기회를 줍니다.</p>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="text-5xl mb-4">📈</div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">점진성의 원리</h3>
-                        <p class="text-slate-600">무리하지 않고, 운동 강도와 양을 조금씩 꾸준히 늘려나갑니다.</p>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="text-5xl mb-4">🎯</div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">특수성의 원리</h3>
-                        <p class="text-slate-600">키우고 싶은 체력 요소에 맞는 특정 운동을 선택하여 집중합니다.</p>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="text-5xl mb-4">🔄</div>
-                        <h3 class="text-xl font-bold text-slate-800 mb-2">반복성의 원리</h3>
-                        <p class="text-slate-600">규칙적으로 꾸준히 운동을 실천하여 몸의 변화를 만듭니다.</p>
-                    </div>
-                </div>
-            </section>
+            <div>
+                <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">성별</label>
+                <select id="gender" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border-2">
+                    <option value="남">남학생</option>
+                    <option value="여">여학생</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="event" class="block text-sm font-medium text-gray-700 mb-1">종목</label>
+                <select id="event" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border-2">
+                    <option value="왕복오래달리기">심폐지구력 - 왕복오래달리기</option>
+                    <option value="오래달리기걷기">심폐지구력 - 오래달리기 걷기</option>
+                    <option value="스텝검사">심폐지구력 - 스텝검사 (PEI)</option>
+                    <option value="앉아윗몸앞으로굽히기">유연성 - 앉아 윗몸 앞으로 굽히기</option>
+                    <option value="종합유연성">유연성 - 종합유연성</option>
+                    <option value="팔굽혀펴기">근력/근지구력 - 팔굽혀펴기</option>
+                    <option value="윗몸말아올리기">근력/근지구력 - 윗몸 말아올리기</option>
+                    <option value="악력">근력/근지구력 - 악력</option>
+                    <option value="50m달리기">순발력 - 50m 달리기</option>
+                    <option value="제자리멀리뛰기">순발력 - 제자리 멀리뛰기</option>
+                    <option value="BMI">비만 - 체질량 지수(BMI)</option>
+                </select>
+            </div>
 
-            <section id="data-hub" class="mb-20">
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
-                    <h2 class="text-3xl font-bold text-slate-800 text-center mb-8">📊 PAPS 데이터 허브</h2>
-                    <p class="text-center text-slate-600 mb-12 max-w-3xl mx-auto">수업 내용을 잘 배웠나요? 이제 배운 내용을 바탕으로 나의 체력을 측정하고, 결과를 이곳에 기록하여 꾸준히 관리해 보세요.</p>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div>
-                            <h3 class="text-2xl font-bold text-slate-700 mb-4">내 체력 결과 입력하기</h3>
-                            <form id="paps-form" class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <input type="text" id="studentId" placeholder="학번 (예: 1101)" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                    <input type="text" id="studentName" placeholder="이름" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <input type="number" id="height" placeholder="키 (cm)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                    <input type="number" id="weight" placeholder="몸무게 (kg)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                </div>
-                                <input type="number" id="cardio" placeholder="심폐지구력 (왕복오래달리기 횟수)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                <div>
-                                    <label class="font-bold text-slate-600">유연성 (앉아윗몸앞으로굽히기, cm)</label>
-                                    <div class="grid grid-cols-2 gap-4 mt-1">
-                                        <input type="number" name="flexibility" placeholder="1차 시기" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                        <input type="number" name="flexibility" placeholder="2차 시기" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="font-bold text-slate-600">악력 (kg)</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-1">
-                                        <input type="number" name="strength" placeholder="오른손 1차" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                        <input type="number" name="strength" placeholder="왼손 1차" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                        <input type="number" name="strength" placeholder="오른손 2차" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                        <input type="number" name="strength" placeholder="왼손 2차" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="font-bold text-slate-600">순발력 (제자리 멀리 뛰기, cm)</label>
-                                    <div class="grid grid-cols-2 gap-4 mt-1">
-                                        <input type="number" name="power" placeholder="1차 시기" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                        <input type="number" name="power" placeholder="2차 시기" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                    </div>
-                                </div>
-                                <button type="submit" class="w-full bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-cyan-700 transition-colors">결과 저장하기</button>
-                            </form>
-                            <div id="form-feedback" class="mt-4 text-center"></div>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-slate-700 mb-4">내 기록 다시보기</h3>
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <input type="text" id="search-id" placeholder="학번 (예: 1101)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                    <input type="text" id="search-name" placeholder="이름" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500">
-                                </div>
-                                <button onclick="searchData()" class="w-full bg-slate-700 text-white font-bold py-3 px-5 rounded-lg hover:bg-slate-800 transition-colors">검색</button>
-                            </div>
-                            <div id="search-results" class="mt-4 bg-slate-50 rounded-lg p-4 min-h-[200px]">
-                                <p class="text-slate-500">학번과 이름을 입력하고 검색 버튼을 누르세요.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            <div id="recordInputContainer">
+                <label for="record" class="block text-sm font-medium text-gray-700 mb-1">기록 입력</label>
+                <input type="number" id="record" step="0.01" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border-2" placeholder="기록을 입력하세요">
+            </div>
 
-            <section id="mission" class="mb-20">
-                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                    <div class="text-center md:text-left">
-                        <h2 class="text-3xl font-bold text-slate-800 mb-4">나만의 4주 체력 성장 미션</h2>
-                        <p class="text-slate-600 mb-6">이제 당신이 주인공입니다. PAPS 측정 결과를 바탕으로 '나만의 체력 처방전'을 설계하고 4주간 실천하며 놀라운 변화를 직접 경험해 보세요. 아래 차트는 건강 체력의 5대 요소를 보여줍니다. 당신은 어떤 요소를 먼저 강화하고 싶나요?</p>
-                        <div class="bg-cyan-600 text-white p-4 rounded-lg text-center font-bold text-lg shadow-inner">
-                            진단 → 설계 → 실천 → 성장
-                        </div>
-                    </div>
-                    <div>
-                        <div class="chart-container">
-                            <canvas id="papsComponentsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
+            <button type="button" id="calculateBtn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                등급 확인
+            </button>
+        </form>
 
-        <footer class="text-center py-8 text-slate-500">
-            <p>건강한 삶을 위한 첫걸음, 여러분의 노력을 응원합니다.</p>
-        </footer>
+        <div id="resultContainer" class="mt-8 text-center bg-gray-50 p-6 rounded-lg border-dashed border-2 border-gray-300 hidden">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">결과</h3>
+            <p id="resultText" class="text-2xl font-bold text-blue-600"></p>
+        </div>
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">알림</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p id="modalMessage" class="text-sm text-gray-500">모든 항목을 입력해주세요.</p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="closeModal" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
+                        닫기
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // =====================================================================
-        // 데이터베이스 연동 스크립트
-        // =====================================================================
-        // 중요: 여기에 위에서 복사한 Google Apps Script 웹 앱 URL을 붙여넣으세요!
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2y7wVetCWy3Rm2wx7bbswdTfSoHsvn7_ta3WYzdX-MXClqa6qBE_gDYwkmhBAPNYQgQ/exec"; 
+        const gradeRanges = {
+            '초4': 1, '초5': 2, '초6': 3,
+            '중1': 4, '중2': 5, '중3': 6,
+            '고1': 7, '고2': 8, '고3': 9
+        };
 
-        const papsForm = document.getElementById('paps-form');
-        const formFeedback = document.getElementById('form-feedback');
+        const eventData = {
+            '왕복오래달리기': {
+                '남': {
+                    '초4': [19, 26, 45, 69, 96, 103],
+                    '초5': [22, 29, 50, 73, 100, 107],
+                    '초6': [22, 32, 54, 78, 104, 112],
+                    '중1': [15, 20, 36, 50, 64, 73],
+                    '중2': [15, 22, 38, 52, 66, 75],
+                    '중3': [16, 24, 40, 54, 68, 79],
+                    '고1': [16, 26, 42, 56, 70, 80],
+                    '고2': [16, 28, 44, 58, 72, 81],
+                    '고3': [18, 30, 46, 60, 74, 82],
+                },
+                '여': {
+                    '초4': [16, 21, 40, 57, 77, 100],
+                    '초5': [18, 23, 45, 63, 85, 104],
+                    '초6': [20, 25, 50, 69, 93, 112],
+                    '중1': [10, 14, 19, 25, 35, 70],
+                    '중2': [10, 15, 21, 29, 40, 75],
+                    '중3': [12, 16, 23, 33, 45, 80],
+                    '고1': [13, 17, 25, 37, 50, 85],
+                    '고2': [14, 18, 27, 41, 55, 90],
+                    '고3': [14, 18, 27, 41, 55, 90],
+                },
+            },
+            '오래달리기걷기': {
+                '남': {
+                    '초5': [480, 410, 325, 282, 268, 281],
+                    '초6': [450, 380, 315, 251, 243, 250],
+                    '중1': [700, 600, 503, 426, 400, 425],
+                    '중2': [680, 584, 488, 417, 380, 416],
+                    '중3': [660, 568, 473, 408, 370, 407],
+                    '고1': [640, 552, 458, 399, 370, 398],
+                    '고2': [620, 536, 443, 390, 370, 389],
+                    '고3': [600, 520, 428, 381, 362, 380],
+                },
+                '여': {
+                    '초5': [502, 442, 360, 300, 268, 299],
+                    '초6': [480, 430, 354, 300, 243, 299],
+                    '중1': [609, 518, 443, 380, 355, 379],
+                    '중2': [609, 518, 443, 380, 355, 379],
+                    '중3': [609, 518, 443, 380, 355, 379],
+                    '고1': [609, 518, 443, 380, 365, 379],
+                    '고2': [609, 518, 443, 380, 365, 379],
+                    '고3': [609, 518, 443, 380, 365, 379],
+                },
+            },
+            '스텝검사': {
+                '남': {'all': [44.0, 47.0, 52.0, 62.0, 76.0, 95.0]},
+                '여': {'all': [44.0, 47.0, 52.0, 62.0, 76.0, 95.0]},
+            },
+            '앉아윗몸앞으로굽히기': {
+                '남': {
+                    '초5': [-5.1, -4.0, 1.0, 5.0, 8.0, 18.0],
+                    '초6': [-5.1, -4.0, 1.0, 5.0, 8.0, 18.0],
+                    '중1': [-5.1, -4.0, 2.0, 6.0, 10.0, 25.0],
+                    '중2': [-5.1, -4.0, 2.0, 7.0, 10.0, 25.0],
+                    '중3': [-5.1, -3.0, 2.6, 7.0, 10.0, 25.0],
+                    '고1': [-3.1, -2.0, 4.0, 9.0, 13.0, 28.0],
+                    '고2': [-3.1, 0.1, 5.0, 11.0, 16.0, 28.0],
+                    '고3': [-3.1, 0.1, 6.0, 11.0, 16.0, 28.0],
+                },
+                '여': {
+                    '초5': [-0.1, 1.0, 5.0, 7.0, 10.0, 22.0],
+                    '초6': [-0.1, 2.0, 5.0, 10.0, 14.0, 26.0],
+                    '중1': [-0.1, 2.0, 8.0, 11.0, 15.0, 28.0],
+                    '중2': [-0.1, 2.0, 8.0, 11.0, 15.0, 28.0],
+                    '중3': [-0.1, 2.0, 8.0, 11.0, 16.0, 28.0],
+                    '고1': [-0.1, 2.0, 8.0, 11.0, 16.0, 28.0],
+                    '고2': [-0.1, 5.0, 9.0, 12.0, 17.0, 28.0],
+                    '고3': [-0.1, 5.0, 9.0, 12.0, 17.0, 28.0],
+                },
+            },
+            '종합유연성': {
+                '남': {'all': [4, 5, 6, 7, 8]},
+                '여': {'all': [4, 5, 6, 7, 8]},
+            },
+            '팔굽혀펴기': {
+                '남': {
+                    '중1': [0, 4, 12, 25, 34, 41],
+                    '중2': [0, 4, 12, 25, 34, 41],
+                    '중3': [0, 4, 14, 25, 34, 41],
+                    '고1': [2, 7, 16, 30, 46, 50],
+                    '고2': [7, 8, 25, 42, 50, 54],
+                    '고3': [7, 17, 30, 46, 56, 62],
+                },
+                '여': {
+                    '중1': [0, 6, 14, 24, 45, 50],
+                    '중2': [0, 6, 14, 24, 40, 44],
+                    '중3': [0, 6, 14, 24, 40, 44],
+                    '고1': [0, 6, 14, 24, 40, 44],
+                    '고2': [0, 9, 18, 30, 40, 44],
+                    '고3': [0, 9, 18, 30, 40, 44],
+                },
+            },
+            '윗몸말아올리기': {
+                '남': {
+                    '초4': [0, 7, 22, 40, 80, 120],
+                    '초5': [0, 10, 22, 40, 80, 120],
+                    '초6': [0, 10, 22, 40, 80, 120],
+                    '중1': [5, 14, 33, 55, 90, 130],
+                    '중2': [5, 14, 33, 55, 90, 130],
+                    '중3': [5, 14, 33, 55, 90, 130],
+                    '고1': [8, 15, 35, 60, 90, 130],
+                    '고2': [10, 17, 35, 60, 90, 130],
+                    '고3': [10, 17, 35, 60, 90, 130],
+                },
+                '여': {
+                    '초4': [0, 6, 18, 29, 60, 90],
+                    '초5': [0, 7, 23, 36, 60, 90],
+                    '초6': [0, 7, 23, 43, 60, 90],
+                    '중1': [0, 7, 22, 43, 58, 62],
+                    '중2': [0, 7, 19, 39, 58, 62],
+                    '중3': [0, 6, 17, 34, 52, 60],
+                    '고1': [0, 4, 13, 30, 40, 50],
+                    '고2': [0, 4, 13, 30, 40, 50],
+                    '고3': [0, 4, 13, 30, 40, 50],
+                },
+            },
+            '악력': {
+                '남': {
+                    '초4': [8.9, 11.5, 15.0, 18.5, 31.0, 36.0],
+                    '초5': [9.9, 12.5, 17.0, 23.0, 31.0, 37.0],
+                    '초6': [11.2, 15.0, 19.0, 26.5, 35.0, 39.4],
+                    '중1': [14.4, 16.5, 22.5, 30.0, 42.0, 46.0],
+                    '중2': [19.1, 22.0, 28.5, 37.0, 44.5, 47.0],
+                    '중3': [19.1, 25.0, 33.0, 40.5, 48.5, 50.0],
+                    '고1': [25.5, 29.0, 35.5, 42.5, 61.0, 62.5],
+                    '고2': [28.5, 31.0, 39.0, 46.0, 61.0, 65.0],
+                    '고3': [30.5, 31.0, 39.0, 46.0, 63.5, 68.4],
+                },
+                '여': {
+                    '초4': [8.5, 10.5, 13.5, 18.0, 29.0, 33.6],
+                    '초5': [10.6, 12.0, 15.5, 19.0, 29.0, 35.0],
+                    '초6': [10.0, 14.0, 19.0, 22.0, 33.0, 39.0],
+                    '중1': [11.9, 14.0, 19.0, 23.0, 36.0, 38.0],
+                    '중2': [13.0, 14.0, 19.5, 25.5, 36.0, 38.0],
+                    '중3': [14.9, 16.0, 19.5, 27.5, 36.0, 38.0],
+                    '고1': [16.0, 16.5, 23.0, 29.0, 36.0, 38.0],
+                    '고2': [17.6, 18.0, 25.0, 29.5, 37.5, 38.2],
+                    '고3': [17.6, 18.0, 25.0, 29.5, 37.5, 38.2],
+                },
+            },
+            '50m달리기': {
+                '남': {
+                    '초4': [13.21, 10.51, 9.71, 8.81, 8.70, 8.80],
+                    '초5': [13.21, 10.21, 9.41, 8.51, 8.30, 8.50],
+                    '초6': [12.51, 10.01, 9.11, 8.11, 7.77, 8.10],
+                    '중1': [11.51, 9.31, 8.41, 7.51, 7.40, 7.50],
+                    '중2': [11.51, 9.01, 8.21, 7.31, 7.11, 7.30],
+                    '중3': [11.01, 8.51, 7.81, 7.01, 6.80, 7.00],
+                    '고1': [10.74, 8.11, 7.61, 7.01, 6.80, 7.00],
+                    '고2': [9.71, 7.91, 7.51, 6.71, 6.50, 6.70],
+                    '고3': [9.61, 7.91, 7.51, 6.71, 6.40, 6.70],
+                },
+                '여': {
+                    '초4': [13.31, 11.01, 10.41, 9.41, 9.30, 9.40],
+                    '초5': [13.31, 10.71, 9.91, 8.91, 8.73, 8.90],
+                    '초6': [12.91, 10.71, 9.81, 8.91, 8.66, 8.90],
+                    '중1': [12.21, 10.51, 9.81, 8.81, 8.60, 8.80],
+                    '중2': [12.21, 10.51, 9.81, 8.81, 8.60, 8.80],
+                    '중3': [12.21, 10.51, 9.81, 8.81, 8.60, 8.80],
+                    '고1': [12.21, 10.51, 9.81, 8.81, 8.60, 8.80],
+                    '고2': [12.21, 10.51, 9.51, 8.81, 8.60, 8.80],
+                    '고3': [12.21, 10.51, 9.51, 8.81, 8.60, 8.80],
+                },
+            },
+            '제자리멀리뛰기': {
+                '남': {
+                    '초4': [98.2, 100.1, 130.1, 149.1, 170.1, 179.4],
+                    '초5': [105.6, 111, 141.1, 159.1, 180.1, 187.4],
+                    '초6': [112.0, 122.1, 148.1, 167.1, 200.1, 204.7],
+                    '중1': [122.9, 131.1, 159.1, 177.1, 211.1, 219.7],
+                    '중2': [129.9, 136.1, 169.1, 187.1, 218.1, 229.3],
+                    '중3': [141.4, 145.1, 180.1, 201.1, 238.1, 244.0],
+                    '고1': [139.9, 160.1, 195.1, 216.1, 255.1, 260.2],
+                    '고2': [162.9, 177.1, 212.1, 228.1, 258.1, 270.0],
+                    '고3': [169.9, 185.1, 221.1, 243.1, 264.1, 277.1],
+                },
+                '여': {
+                    '초4': [87.4, 97.1, 119.1, 135.1, 161.1, 165.5],
+                    '초5': [89.3, 100.1, 123.1, 139.1, 170.1, 175.0],
+                    '초6': [89.9, 100.1, 127.1, 144.1, 175.1, 177.8],
+                    '중1': [89.9, 100.1, 127.1, 144.1, 175.1, 180.5],
+                    '중2': [93.9, 100.1, 127.1, 145.1, 183.1, 198.0],
+                    '중3': [94.9, 100.1, 127.1, 145.1, 183.1, 198.0],
+                    '고1': [94.9, 100.1, 139.1, 159.1, 186.1, 200.0],
+                    '고2': [94.9, 100.1, 139.1, 159.1, 186.1, 200.0],
+                    '고3': [94.9, 100.1, 139.1, 159.1, 186.1, 200.0],
+                },
+            },
+            'BMI': {
+                '남': {
+                    '초4': [14.2, 14.3, 20.8, 23.3, 30.0],
+                    '초5': [14.5, 14.6, 21.7, 24.5, 30.0],
+                    '초6': [14.8, 14.9, 22.6, 25.0, 30.0],
+                    '중1': [15.3, 15.4, 23.3, 25.0, 30.0],
+                    '중2': [15.7, 15.8, 23.9, 25.0, 30.0],
+                    '중3': [16.2, 16.3, 24.4, 25.0, 30.0],
+                    '고1': [16.7, 16.8, 24.7, 25.0, 30.0],
+                    '고2': [17.2, 17.3, 25.0, 30.0],
+                    '고3': [17.7, 17.8, 25.0, 30.0],
+                },
+                '여': {
+                    '초4': [13.9, 14.0, 19.9, 22.1, 30.0],
+                    '초5': [14.2, 14.3, 20.7, 23.1, 30.0],
+                    '초6': [14.6, 14.7, 21.5, 24.0, 30.0],
+                    '중1': [15.1, 15.2, 22.2, 24.8, 30.0],
+                    '중2': [15.6, 15.7, 22.8, 25.0, 30.0],
+                    '중3': [16.2, 16.3, 23.3, 25.0, 30.0],
+                    '고1': [16.7, 16.8, 23.7, 25.0, 30.0],
+                    '고2': [17.2, 17.3, 23.9, 25.0, 30.0],
+                    '고3': [17.6, 17.7, 24.0, 25.0, 30.0],
+                },
+            },
+        };
 
-        papsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitButton = papsForm.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<div class="loader mx-auto"></div>';
+        const eventElementData = {
+            'BMI': { placeholder: '키(cm)/몸무게(kg)', inputType: 'text', disabled: false },
+            '오래달리기걷기': { placeholder: '기록(초)을 입력하세요', inputType: 'number', disabled: false },
+            '50m달리기': { placeholder: '기록(초)을 입력하세요', inputType: 'number', disabled: false },
+            '스텝검사': { placeholder: 'PEI 점수를 입력하세요', inputType: 'number', disabled: false },
+            '앉아윗몸앞으로굽히기': { placeholder: '기록(cm)을 입력하세요', inputType: 'number', disabled: false },
+            '종합유연성': { placeholder: '점수(4~8)를 입력하세요', inputType: 'number', disabled: false },
+            '팔굽혀펴기': { placeholder: '기록(회)를 입력하세요', inputType: 'number', disabled: false },
+            '윗몸말아올리기': { placeholder: '기록(회)를 입력하세요', inputType: 'number', disabled: false },
+            '악력': { placeholder: '기록(kg)을 입력하세요', inputType: 'number', disabled: false },
+            '제자리멀리뛰기': { placeholder: '기록(cm)을 입력하세요', inputType: 'number', disabled: false },
+            '왕복오래달리기': { placeholder: '기록(회)를 입력하세요', inputType: 'number', disabled: false },
+        };
 
-            const flexibilityValues = Array.from(document.querySelectorAll('input[name="flexibility"]')).map(input => input.value).filter(value => value);
-            const strengthValues = Array.from(document.querySelectorAll('input[name="strength"]')).map(input => input.value).filter(value => value);
-            const powerValues = Array.from(document.querySelectorAll('input[name="power"]')).map(input => input.value).filter(value => value);
+        const calculateBtn = document.getElementById('calculateBtn');
+        const eventSelect = document.getElementById('event');
+        const recordInputContainer = document.getElementById('recordInputContainer');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeModalBtn = document.getElementById('closeModal');
 
-            const formData = {
-                studentId: document.getElementById('studentId').value,
-                studentName: document.getElementById('studentName').value,
-                height: document.getElementById('height').value,
-                weight: document.getElementById('weight').value,
-                cardio: document.getElementById('cardio').value,
-                flexibility: flexibilityValues,
-                strength: strengthValues,
-                power: powerValues,
-            };
+        const grades = ['1등급', '2등급', '3등급', '4등급', '5등급'];
+        const bmiGrades = ['마름', '정상', '과체중', '경도비만', '고도비만'];
 
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'cors',
-                    cache: 'no-cache',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(formData),
-                    redirect: 'follow'
-                });
-
-                formFeedback.innerHTML = `<p class="text-green-600 font-bold">✅ 데이터가 성공적으로 저장되었습니다!</p>`;
-                papsForm.reset();
-
-            } catch (error) {
-                console.error('Error:', error);
-                formFeedback.innerHTML = `<p class="text-red-600 font-bold">❌ 저장 중 오류가 발생했습니다. 다시 시도해주세요.</p>`;
-            } finally {
-                submitButton.disabled = false;
-                submitButton.innerHTML = '결과 저장하기';
-            }
-        });
-
-        // 결과 표시를 위한 헬퍼 함수 (오류 수정됨)
-        function formatRecord(key, value) {
-            if (!value) {
-                return '';
-            }
-            if (String(value).startsWith('[') && String(value).endsWith(']')) {
-                try {
-                    const records = JSON.parse(value);
-                    if (Array.isArray(records) && records.length > 0) {
-                        const numericRecords = records.map(Number);
-                        const maxRecord = Math.max(...numericRecords);
-                        
-                        const formattedRecords = numericRecords.map(r => 
-                            r === maxRecord ? `<strong class="text-cyan-700">${r}</strong>` : r
-                        ).join(', ');
-
-                        return `<li>${key}: ${formattedRecords}</li>`;
-                    }
-                } catch (e) {
-                    return `<li>${key}: ${value}</li>`;
-                }
-            }
-            return `<li>${key}: ${value}</li>`;
+        function showModal(message) {
+            modalMessage.textContent = message;
+            modal.classList.remove('hidden');
         }
 
-        async function searchData() {
-            const studentId = document.getElementById('search-id').value;
-            const studentName = document.getElementById('search-name').value;
-            const resultsDiv = document.getElementById('search-results');
+        function getGrade(event, gender, grade, record) {
+            const data = eventData[event][gender];
+            const eventGrades = data[grade] || data['all'];
+
+            if (event === 'BMI') {
+                if (record <= eventGrades[0]) return '마름';
+                if (record <= eventGrades[1]) return '정상';
+                if (record <= eventGrades[2]) return '과체중';
+                if (record <= eventGrades[3]) return '경도비만';
+                return '고도비만';
+            }
+
+            if (event === '50m달리기' || event === '오래달리기걷기') {
+                 if (record <= eventGrades[4]) return '아주 높음(1등급)';
+                 if (record <= eventGrades[3]) return '높음(2등급)';
+                 if (record <= eventGrades[2]) return '보통(3등급)';
+                 if (record <= eventGrades[1]) return '낮음(4등급)';
+                 return '아주 낮음(5등급)';
+            }
             
-            if (!studentId || !studentName) {
-                resultsDiv.innerHTML = `<p class="text-red-600">검색할 학번과 이름을 모두 입력해주세요.</p>`;
+            if (event === '앉아윗몸앞으로굽히기' || event === '종합유연성' || event === '제자리멀리뛰기' || event === '악력' || event === '윗몸말아올리기' || event === '왕복오래달리기' || event === '팔굽혀펴기' || event === '스텝검사' ) {
+                if (record >= eventGrades[4]) return '아주 높음(1등급)';
+                if (record >= eventGrades[3]) return '높음(2등급)';
+                if (record >= eventGrades[2]) return '보통(3등급)';
+                if (record >= eventGrades[1]) return '낮음(4등급)';
+                return '아주 낮음(5등급)';
+            }
+        }
+
+        function updateRecordInput() {
+            const selectedEvent = eventSelect.value;
+            const eventInfo = eventElementData[selectedEvent];
+            
+            let inputElement;
+            if (selectedEvent === 'BMI') {
+                inputElement = `<input type="text" id="record" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border-2" placeholder="${eventInfo.placeholder}">`;
+            } else {
+                inputElement = `<input type="number" id="record" step="0.01" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border-2" placeholder="${eventInfo.placeholder}">`;
+            }
+
+            const inputHtml = `
+                <label for="record" class="block text-sm font-medium text-gray-700 mb-1">기록 입력</label>
+                ${inputElement}
+            `;
+            recordInputContainer.innerHTML = inputHtml;
+        }
+
+        calculateBtn.addEventListener('click', () => {
+            const grade = document.getElementById('grade').value;
+            const gender = document.getElementById('gender').value;
+            const event = document.getElementById('event').value;
+            const recordInput = document.getElementById('record');
+            let record;
+
+            if (event === 'BMI') {
+                const bmiRecord = recordInput.value.split('/').map(val => parseFloat(val.trim()));
+                if (bmiRecord.length !== 2 || isNaN(bmiRecord[0]) || isNaN(bmiRecord[1])) {
+                    showModal('키(cm)/몸무게(kg) 형식으로 입력해주세요.');
+                    return;
+                }
+                const heightM = bmiRecord[0] / 100;
+                record = bmiRecord[1] / (heightM * heightM);
+            } else {
+                record = parseFloat(recordInput.value);
+            }
+            
+            if (isNaN(record)) {
+                showModal('기록을 정확히 입력해주세요.');
                 return;
             }
 
-            resultsDiv.innerHTML = '<div class="loader mx-auto"></div>';
+            const result = getGrade(event, gender, grade, record);
 
-            try {
-                const response = await fetch(`${SCRIPT_URL}?studentId=${studentId}&studentName=${studentName}`);
-                const result = await response.json();
-
-                if (result.status === 'success' && result.data.length > 0) {
-                    let html = `<h4 class="font-bold text-lg mb-2">${result.data[0]['이름']} (${result.data[0]['학번']}) 학생의 기록</h4>`;
-                    html += '<div class="space-y-2">';
-                    result.data.forEach(record => {
-                        const date = new Date(record['타임스탬프']).toLocaleString('ko-KR');
-                        html += `<div class="bg-white p-3 rounded-md shadow-sm">`;
-                        html += `<p class="font-bold text-sm text-cyan-700">${date}</p>`;
-                        html += `<ul class="text-sm list-disc list-inside text-slate-600">`;
-                        
-                        html += formatRecord('심폐지구력', record['심폐지구력']);
-                        html += formatRecord('유연성', record['유연성']);
-                        html += formatRecord('악력', record['악력']);
-                        html += formatRecord('순발력', record['순발력']);
-                        html += formatRecord('키(cm)', record['키(cm)']);
-                        html += formatRecord('몸무게(kg)', record['몸무게(kg)']);
-                        html += formatRecord('BMI', record['BMI']);
-
-                        html += `</ul></div>`;
-                    });
-                    html += '</div>';
-                    resultsDiv.innerHTML = html;
-                } else {
-                    resultsDiv.innerHTML = `<p class="text-slate-500">해당 학생의 데이터를 찾을 수 없습니다.</p>`;
-                }
-            } catch (error) {
-                console.error('Search Error:', error);
-                resultsDiv.innerHTML = `<p class="text-red-600 font-bold">❌ 검색 중 오류가 발생했습니다.</p>`;
-            }
-        }
-        
-        // 검색 필드에 엔터키 이벤트 리스너 추가
-        document.getElementById('search-id').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                searchData();
-            }
-        });
-        document.getElementById('search-name').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                searchData();
+            if (result) {
+                resultText.textContent = `결과: ${result}`;
+                resultContainer.classList.remove('hidden');
+            } else {
+                showModal('해당하는 기록에 대한 등급을 찾을 수 없습니다.');
             }
         });
 
-        // =====================================================================
-        // UI 인터랙션 스크립트
-        // =====================================================================
-        const ctx = document.getElementById('papsComponentsChart').getContext('2d');
-        const papsChart = new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['심폐지구력', '유연성', '악력', '순발력', 'BMI'],
-                datasets: [{
-                    label: '건강 체력 요소',
-                    data: [80, 70, 85, 75, 90],
-                    backgroundColor: 'rgba(8, 145, 178, 0.2)',
-                    borderColor: 'rgba(8, 145, 178, 1)',
-                    pointBackgroundColor: 'rgba(8, 145, 178, 1)',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgba(8, 145, 178, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { r: { angleLines: { color: 'rgba(0, 0, 0, 0.1)' }, grid: { color: 'rgba(0, 0, 0, 0.1)' }, pointLabels: { font: { size: 14, weight: 'bold' }, color: '#334155' }, ticks: { backdropColor: 'rgba(255, 255, 255, 0.75)', stepSize: 20 }, suggestedMin: 0, suggestedMax: 100 } },
-                plugins: { legend: { display: false }, tooltip: { callbacks: { title: (tooltipItems) => { let label = tooltipItems[0].chart.data.labels[tooltipItems[0].dataIndex]; return Array.isArray(label) ? label.join(' ') : label; } } } }
-            }
+        eventSelect.addEventListener('change', updateRecordInput);
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
         });
 
-        const sections = document.querySelectorAll('section, header');
-        const navButtons = document.querySelectorAll('.nav-button');
-
-        function scrollToSection(sectionId) {
-            navButtons.forEach(button => {
-                button.classList.toggle('active', button.dataset.section === sectionId);
-            });
-            document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        const observer = new IntersectionObserver((entries) => {
-            const intersectingEntry = entries.find(entry => entry.isIntersecting);
-            if (intersectingEntry) {
-                const activeSectionId = intersectingEntry.target.id;
-                navButtons.forEach(button => {
-                    button.classList.toggle('active', button.dataset.section === activeSectionId);
-                });
-            }
-        }, { 
-            rootMargin: "-40% 0px -60% 0px" 
-        });
-
-        sections.forEach(section => observer.observe(section));
-
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabPanes = document.querySelectorAll('.tab-pane');
-
-        function changeTab(tabId) {
-            tabButtons.forEach(button => {
-                button.classList.remove('bg-cyan-600', 'text-white', 'shadow');
-                button.classList.add('bg-gray-300', 'text-gray-800');
-            });
-            
-            const selectedButton = document.querySelector(`button[onclick="changeTab('${tabId}')"]`);
-            selectedButton.classList.add('bg-cyan-600', 'text-white', 'shadow');
-            selectedButton.classList.remove('bg-gray-300', 'text-gray-800');
-
-            tabPanes.forEach(pane => {
-                pane.classList.add('hidden', 'opacity-0');
-            });
-            
-            const selectedPane = document.getElementById(`${tabId}-content`);
-            selectedPane.classList.remove('hidden');
-            setTimeout(() => { selectedPane.classList.remove('opacity-0'); }, 10);
-        }
+        // Initialize input state
+        window.onload = updateRecordInput;
     </script>
 </body>
 </html>
